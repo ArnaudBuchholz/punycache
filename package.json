@@ -1,0 +1,51 @@
+{
+  "name": "punycache",
+  "version": "1.0.0",
+  "description": "A minimalist cache",
+  "main": "./dist/punycache.js",
+  "files": [
+    "punycache.js"
+  ],
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ArnaudBuchholz/punycache.git"
+  },
+  "keywords": [
+    "node",
+    "cache"
+  ],
+  "author": "Arnaud Buchholz",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ArnaudBuchholz/punycache/issues"
+  },
+  "homepage": "https://github.com/ArnaudBuchholz/punycache#readme",
+  "standard": {
+    "env": [
+      "browser",
+      "node",
+      "jest"
+    ]
+  },
+  "jest": {
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "punycache.js"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 100,
+        "functions": 100,
+        "lines": 100,
+        "statements": 100
+      }
+    }
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "standard": "^17.1.0"
+  }
+}
