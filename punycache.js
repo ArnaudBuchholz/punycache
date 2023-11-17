@@ -2,23 +2,38 @@
 
 module.exports = function factory (options = {}) {
   const {
-    ttl = 0,
-    size = 0,
-    interval = 1000
+    ttl = Number.POSITIVE_INFINITY,
+    max = 0
   } = options
-  let cache = {}
+  const empty = () => Object.create(null)
+  let cache = empty()
+  const keys = () => Object.keys(cache)
+
+  const prune = () => {
+    const now = Date.now()
+    keys().forEach(key => {
+      const { e } = cache[key]
+      if (e <= now) {
+        delete cache[key]
+      }
+    })
+  }
+
   return {
-    set (key, value) {
+    set (key, v) {
+      if (keys().length > max) {
+      }
       cache[key] = {
-        ts: Date.now(),
-        value
+        e: Date.now() + ttl,
+        v
       }
     },
 
     get (key) {
       const cached = cache[key]
-      if (cached) {
-        return cached.value
+      const now = Date.now()
+      if (cached && cached.e > now) {
+        return cached.v
       }
     },
 
@@ -26,12 +41,13 @@ module.exports = function factory (options = {}) {
       if (key) {
         delete cache[key]
       } else {
-        cache = []
+        cache = empty()
       }
     },
 
     keys () {
-      return Object.keys(cache)
+      prune()
+      return keys()
     }
   }
 }
