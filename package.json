@@ -2,9 +2,11 @@
   "name": "punycache",
   "version": "1.0.0",
   "description": "A minimalist cache",
+  "types": "./@types/index.d.ts",
   "main": "./dist/punycache.js",
   "files": [
-    "punycache.js"
+    "punycache.js",
+    "@types/index.d.ts"
   ],
   "scripts": {
     "test": "jest",
