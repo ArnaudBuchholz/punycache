@@ -37,6 +37,10 @@ describe('punycache', () => {
       expect(cache.get('b')).toStrictEqual(2)
     })
 
+    it('does not fail on unknown keys', () => {
+      expect(() => cache.del('c')).not.toThrow()
+    })
+
     it('lists values', () => {
       cache.set('a', 1)
       cache.set('b', 1)
@@ -46,10 +50,11 @@ describe('punycache', () => {
       ])
     })
 
-    it('removes all values', () => {
+    it('removes all values one by one', () => {
       cache.set('a', 1)
       cache.set('b', 2)
-      cache.del()
+      cache.del('a')
+      cache.del('b')
       expect(cache.keys()).toStrictEqual([])
     })
   })
@@ -170,9 +175,9 @@ describe('punycache', () => {
       })
 
       it('removes the least frequently used key when when inserting more values', () => {
+        cache.set('b', 1)
+        cache.set('b', 1)
         cache.set('a', 1)
-        cache.set('b', 1)
-        cache.set('b', 1)
         cache.set('c', 1)
         expect(cache.get('a')).toBeUndefined()
         expect(cache.keys().sort()).toStrictEqual([
@@ -180,6 +185,30 @@ describe('punycache', () => {
           'c'
         ])
       })
+    })
+  })
+
+  describe('combining ttl & max', () => {
+    beforeEach(() => {
+      cache = punycache({
+        ttl: 100,
+        max: 2
+      })
+    })
+
+    it('applies ttl before looking for lru', () => {
+      cache.set('a', 1)
+      jest.advanceTimersByTime(50)
+      cache.set('b', 1)
+      jest.advanceTimersByTime(25)
+      cache.get('a') // more recent than b **but** about to expire
+      jest.advanceTimersByTime(25)
+      cache.set('c', 1)
+      expect(cache.get('a')).toBeUndefined()
+      expect(cache.keys().sort()).toStrictEqual([
+        'b',
+        'c'
+      ])
     })
   })
 })

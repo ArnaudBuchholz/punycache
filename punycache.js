@@ -18,19 +18,18 @@ module.exports = function factory (options = {}) {
   const max = getNumber('max')
   const policy = options.policy || 'lru'
 
-  const empty = () => Object.create(null)
+  const cache = Object.create(null)
+
   const now = () => Date.now()
-
-  let cache = empty()
-
   const keys = () => Object.keys(cache)
 
-  const oldestOfMember = member => () => {
+  const deleteLowestBasedOnMember = member => () => {
     let last = infinity
     let lastKey
     keys().forEach(key => {
       const { [member]: current } = cache[key]
-      if (current < last) {
+      // Stryker disable EqualityOperator
+      if (current < last) { // or <= does not change the logic
         last = current
         lastKey = key
       }
@@ -39,8 +38,8 @@ module.exports = function factory (options = {}) {
   }
 
   const policies = {
-    lru: oldestOfMember('t'),
-    lfu: oldestOfMember('f')
+    lru: deleteLowestBasedOnMember('t'),
+    lfu: deleteLowestBasedOnMember('f')
   }
 
   const remove = policies[policy]
@@ -61,7 +60,7 @@ module.exports = function factory (options = {}) {
     return changed
   }
 
-  const find = key => {
+  const access = key => {
     const cached = cache[key]
     const nowInMs = now()
     if (cached && cached.e > nowInMs) {
@@ -73,7 +72,7 @@ module.exports = function factory (options = {}) {
   return {
     set (key, v) {
       const nowInMs = now()
-      let cached = find(key)
+      let cached = access(key)
       if (!cached) {
         keys().length === max && !prune() && remove()
         cached = {
@@ -90,19 +89,15 @@ module.exports = function factory (options = {}) {
     },
 
     get (key) {
-      const cached = find(key)
+      const cached = access(key)
       if (cached) {
         ++cached.f
         return cached.v
       }
     },
 
-    del (key = '') {
-      if (key) {
-        delete cache[key]
-      } else {
-        cache = empty()
-      }
+    del (key) {
+      delete cache[key]
     },
 
     keys () {
