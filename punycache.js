@@ -8,8 +8,8 @@ module.exports = function factory (options = {}) {
     if (value === undefined) {
       return infinity
     }
-    if (!Number.isInteger(value) || value < 0) {
-      throw new Error(`Invalid value for ${member}`)
+    if (!Number.isInteger(value) || value <= 0) {
+      throw new Error(`Invalid ${member}`)
     }
     return value
   }
@@ -25,69 +25,73 @@ module.exports = function factory (options = {}) {
 
   const keys = () => Object.keys(cache)
 
-  const policies = {
-    lru () {
-      let lastUsed = infinity
-      let lastKey
-      keys().forEach(key => {
-        const { t } = cache[key]
-        if (t < lastUsed) {
-          lastKey = key
-          lastUsed = t
-        }
-      })
-      delete cache[lastKey]
-    },
+  const oldestOfMember = member => () => {
+    let last = infinity
+    let lastKey
+    keys().forEach(key => {
+      const { [member]: current } = cache[key]
+      if (current < last) {
+        last = current
+        lastKey = key
+      }
+    })
+    delete cache[lastKey]
+  }
 
-    lfu () {
-      let lowestFrequency = infinity
-      let lowestKey
-      keys().forEach(key => {
-        const { f } = cache[key]
-        if (f < lowestFrequency) {
-          lowestKey = key
-          lowestFrequency = f
-        }
-      })
-      delete cache[lowestKey]
-    }
+  const policies = {
+    lru: oldestOfMember('t'),
+    lfu: oldestOfMember('f')
   }
 
   const remove = policies[policy]
   if (remove === undefined) {
-    throw new Error('Unknown policy')
+    throw new Error('Invalid policy')
   }
 
   const prune = () => {
     const nowInMs = now()
-    let count = 0
+    let changed = false
     keys().forEach(key => {
       const { e } = cache[key]
       if (e <= nowInMs) {
         delete cache[key]
-        ++count
+        changed = true
       }
     })
-    return count
+    return changed
+  }
+
+  const find = key => {
+    const cached = cache[key]
+    const nowInMs = now()
+    if (cached && cached.e > nowInMs) {
+      cached.t = nowInMs
+      return cached
+    }
   }
 
   return {
     set (key, v) {
-      keys().length === max && prune() === 0 && remove()
       const nowInMs = now()
-      cache[key] = {
+      let cached = find(key)
+      if (!cached) {
+        keys().length === max && !prune() && remove()
+        cached = {
+          f: 0
+        }
+        cache[key] = cached
+      }
+      Object.assign(cached, {
         e: nowInMs + ttl,
         t: nowInMs,
-        f: 1,
+        f: cached.f + 1,
         v
-      }
+      })
     },
 
     get (key) {
-      const cached = cache[key]
-      const nowInMs = now()
-      if (cached && cached.e > nowInMs) {
-        cache.t = nowInMs
+      const cached = find(key)
+      if (cached) {
         ++cached.f
         return cached.v
       }

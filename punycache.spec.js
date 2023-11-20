@@ -31,8 +31,10 @@ describe('punycache', () => {
 
     it('removes a value', () => {
       cache.set('a', 1)
+      cache.set('b', 2)
       cache.del('a')
       expect(cache.get('a')).toBeUndefined()
+      expect(cache.get('b')).toStrictEqual(2)
     })
 
     it('lists values', () => {
@@ -52,14 +54,37 @@ describe('punycache', () => {
     })
   })
 
+  describe('options validation', () => {
+    const invalidValues = ['1', 0, -1, 'a', '', true, false, function () {}]
+
+    function test (option) {
+      describe(option, () => {
+        invalidValues.forEach(invalidValue => {
+          it(`accepts only numbers (${JSON.stringify(invalidValue)})`, () => {
+            expect(() => punycache({ [option]: invalidValue })).toThrow({
+              message: `Invalid ${option}`
+            })
+          })
+        })
+      })
+    }
+
+    test('ttl')
+
+    test('max')
+
+    describe('policy', () => {
+      it('accepts only known values', () => {
+        expect(() => punycache({ policy: 'unknown' })).toThrow({
+          message: 'Invalid policy'
+        })
+      })
+    })
+  })
+
   describe('ttl', () => {
     beforeEach(() => {
       cache = punycache({ ttl: 100 })
-      jest.useFakeTimers()
-    })
-
-    afterEach(() => {
-      jest.useRealTimers()
     })
 
     it('keeps a value until ttl is reached', () => {
@@ -67,7 +92,7 @@ describe('punycache', () => {
       expect(cache.get('a')).toStrictEqual('a')
     })
 
-    it('removes a value when ttl is reached (get)', () => {
+    it('invalidates a value when ttl is reached (get)', () => {
       cache.set('a', 'a')
       jest.advanceTimersByTime(100)
       expect(cache.get('a')).toBeUndefined()
@@ -104,6 +129,21 @@ describe('punycache', () => {
         expect(cache.get('a')).toBeUndefined()
         expect(cache.keys().sort()).toStrictEqual([
           'b',
+          'c'
+        ])
+      })
+
+      it('also refreshes timestamp on a get', () => {
+        cache.set('a', 1)
+        jest.advanceTimersByTime(1)
+        cache.set('b', 1)
+        jest.advanceTimersByTime(1)
+        cache.get('a')
+        jest.advanceTimersByTime(1)
+        cache.set('c', 1)
+        expect(cache.get('b')).toBeUndefined()
+        expect(cache.keys().sort()).toStrictEqual([
+          'a',
           'c'
         ])
       })
