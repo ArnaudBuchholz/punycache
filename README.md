@@ -1,4 +1,14 @@
 # punycache 🦴
+
+[![Node.js CI](https://github.com/ArnaudBuchholz/punycache/actions/workflows/node.js.yml/badge.svg)](https://github.com/ArnaudBuchholz/punycache/actions/workflows/node.js.yml)
+[![Package Quality](https://npm.packagequality.com/shield/punycache.svg)](https://packagequality.com/#?package=punycache)
+[![Known Vulnerabilities](https://snyk.io/test/github/ArnaudBuchholz/punycache/badge.svg?targetFile=package.json)](https://snyk.io/test/github/ArnaudBuchholz/punycache?targetFile=package.json)
+[![punycache](https://badge.fury.io/js/punycache.svg)](https://www.npmjs.org/package/punycache)
+[![punycache](http://img.shields.io/npm/dm/punycache.svg)](https://www.npmjs.org/package/punycache)
+[![install size](https://packagephobia.now.sh/badge?p=punycache)](https://packagephobia.now.sh/result?p=punycache)
+[![MIT License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Documentation](https://img.shields.io/badge/-documentation-blueviolet)](https://github.com/ArnaudBuchholz/punycache/tree/master/README.md)
+
 A minimalist cache implementation.
 
 ## Usage
