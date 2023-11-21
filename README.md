@@ -1,4 +1,4 @@
-# punycache
+# punycache 🦴
 A minimalist cache implementation.
 
 ## Usage
@@ -15,7 +15,7 @@ console.log(cache.get('key')) // undefined
 
 ## Options
 
-* `ttl` : *(default: `Number.POSITIVE_INFINITY`)* Time to live of keys in the cache, expressed in milliseconds
+* `ttl` : *(default: `Number.POSITIVE_INFINITY`)* Time to live in the cache, expressed in milliseconds
 * `max` : *(default: `Number.POSITIVE_INFINITY`)* Maximum number of keys to be stored in the cache (see `policy` for cache replacement policies)
 * `policy` : Cache replacement policy, supported values are
   * `'lru'` *(default)* Least Recently Used (each `get` / `set` updates used timestamp)
