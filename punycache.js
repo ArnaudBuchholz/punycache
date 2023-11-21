@@ -26,14 +26,14 @@ module.exports = function factory (options = {}) {
   const deleteLowestBasedOnMember = member => () => {
     let last = infinity
     let lastKey
-    keys().forEach(key => {
+    for (const key in cache) {
       const { [member]: current } = cache[key]
       // Stryker disable EqualityOperator
       if (current < last) { // or <= does not change the logic
         last = current
         lastKey = key
       }
-    })
+    }
     delete cache[lastKey]
   }
 
@@ -50,13 +50,13 @@ module.exports = function factory (options = {}) {
   const prune = () => {
     const nowInMs = now()
     let changed = false
-    keys().forEach(key => {
+    for (const key in cache) {
       const { e } = cache[key]
       if (e <= nowInMs) {
         delete cache[key]
         changed = true
       }
-    })
+    }
     return changed
   }
 
