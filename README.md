@@ -43,5 +43,6 @@ const cache = require('punycache')({
 
 ## Implementation notes :
 
+* keys are **expected** to be strings but no validation is done
 * Values are stored and returned **as-is**
 * Keys are removed from the cache **ad-hoc** *(no timeout is being used)*
