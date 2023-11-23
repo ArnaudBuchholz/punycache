@@ -6,7 +6,7 @@
   "main": "./punycache.js",
   "files": [
     "./punycache.js",
-    "@types/index.d.ts"
+    "./@types/index.d.ts"
   ],
   "scripts": {
     "test": "jest",
