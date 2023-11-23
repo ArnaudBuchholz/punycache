@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "test": "jest",
-    "lint": "standard --fix",
+    "lint": "standard --env jest --fix",
     "mutate": "stryker run"
   },
   "repository": {
@@ -27,27 +27,6 @@
     "url": "https://github.com/ArnaudBuchholz/punycache/issues"
   },
   "homepage": "https://github.com/ArnaudBuchholz/punycache#readme",
-  "standard": {
-    "env": [
-      "browser",
-      "node",
-      "jest"
-    ]
-  },
-  "jest": {
-    "collectCoverage": true,
-    "collectCoverageFrom": [
-      "punycache.js"
-    ],
-    "coverageThreshold": {
-      "global": {
-        "branches": 100,
-        "functions": 100,
-        "lines": 100,
-        "statements": 100
-      }
-    }
-  },
   "devDependencies": {
     "@stryker-mutator/core": "^7.3.0",
     "@stryker-mutator/jest-runner": "^7.3.0",
