@@ -18,23 +18,23 @@ module.exports = function factory (options = {}) {
   const max = getNumber('max')
   const policy = options.policy || 'lru'
 
-  const cache = Object.create(null)
+  const cache = new Map()
 
   const now = () => Date.now()
-  const keys = () => Object.keys(cache)
+  const keys = () => cache.keys()
 
   const deleteLowestBasedOnMember = member => () => {
     let last = infinity
     let lastKey
-    for (const key in cache) {
-      const { [member]: current } = cache[key]
+    for (const key of keys()) {
+      const { [member]: current } = cache.get(key)
       // Stryker disable EqualityOperator
       if (current < last) { // or <= does not change the logic
         last = current
         lastKey = key
       }
     }
-    delete cache[lastKey]
+    cache.delete(lastKey)
   }
 
   const policies = {
@@ -50,10 +50,10 @@ module.exports = function factory (options = {}) {
   const prune = () => {
     const nowInMs = now()
     let changed = false
-    for (const key in cache) {
-      const { e } = cache[key]
+    for (const key of keys()) {
+      const { e } = cache.get(key)
       if (e <= nowInMs) {
-        delete cache[key]
+        cache.delete(key)
         changed = true
       }
     }
@@ -61,11 +61,13 @@ module.exports = function factory (options = {}) {
   }
 
   const access = key => {
-    const cached = cache[key]
-    const nowInMs = now()
-    if (cached && cached.e > nowInMs) {
-      cached.t = nowInMs
-      return cached
+    const cached = cache.get(key)
+    if (cached) {
+      const nowInMs = now()
+      if (cached.e > nowInMs) {
+        cached.t = nowInMs
+        return cached
+      }
     }
   }
 
@@ -74,11 +76,11 @@ module.exports = function factory (options = {}) {
       const nowInMs = now()
       let cached = access(key)
       if (!cached) {
-        keys().length === max && !prune() && remove()
+        cache.size === max && !prune() && remove()
         cached = {
           f: 0
         }
-        cache[key] = cached
+        cache.set(key, cached)
       }
       Object.assign(cached, {
         e: nowInMs + ttl,
@@ -97,12 +99,12 @@ module.exports = function factory (options = {}) {
     },
 
     del (key) {
-      delete cache[key]
+      cache.delete(key)
     },
 
     keys () {
       prune()
-      return keys()
+      return Array.from(keys())
     }
   }
 }
