@@ -1,6 +1,6 @@
 {
   "name": "punycache",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A minimalist cache",
   "types": "./@types/index.d.ts",
   "main": "./punycache.js",
@@ -11,7 +11,9 @@
   "scripts": {
     "test": "jest",
     "lint": "standard --env jest --fix",
-    "mutate": "stryker run"
+    "mutate": "stryker run",
+    "update": "ncu -i --format group",
+    "bench": "node ./benchmark.mjs"
   },
   "repository": {
     "type": "git",
@@ -28,9 +30,11 @@
   },
   "homepage": "https://github.com/ArnaudBuchholz/punycache#readme",
   "devDependencies": {
-    "@stryker-mutator/core": "^7.3.0",
-    "@stryker-mutator/jest-runner": "^7.3.0",
+    "@stryker-mutator/core": "^9.0.1",
+    "@stryker-mutator/jest-runner": "^9.0.1",
     "jest": "^29.7.0",
-    "standard": "^17.1.0"
+    "npm-check-updates": "^18.0.1",
+    "standard": "^17.1.2",
+    "tinybench": "^4.0.1"
   }
 }
